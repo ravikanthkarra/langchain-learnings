@@ -1,40 +1,48 @@
-from dotenv import load_dotenv
 from typing import List
+
+from dotenv import load_dotenv
 from langchain_classic import hub
-from langchain_classic.agents.agent import AgentExecutor
 from langchain_classic.agents import create_react_agent
- 
-
-
-load_dotenv()
-
-from langchain.tools import tool
-from langchain_core.messages import HumanMessage
+from langchain_classic.agents.agent import AgentExecutor
+from langchain_core import output_parsers
+from langchain_core.output_parsers.pydantic import PydanticOutputParser
+from langchain_core.prompts import PromptTemplate
+from langchain_core.runnables import RunnableLambda
 from langchain_openai import ChatOpenAI
 from langchain_tavily import TavilySearch
 
+from prompt import REACT_PROMPT_WITH_FORMAT_INSTRUCTIONS
+from schemas import AgentResponse
+
+load_dotenv()
 
 
 llm = ChatOpenAI(model="gpt-4")
 tools = [TavilySearch()]
 react_prompt = hub.pull("hwchase17/react")
+output_parser = PydanticOutputParser(pydantic_object=AgentResponse)
+react_prompt_with_format_instructions = PromptTemplate(
+    template=REACT_PROMPT_WITH_FORMAT_INSTRUCTIONS,
+    input_variables=["input", "agent_scratchpads", "tool_names"],
+).partial(format_instructions=output_parser.get_format_instructions())
+
 
 agent = create_react_agent(
-        llm=llm,
-        tools=tools,
-        prompt=react_prompt,
+    llm=llm,
+    tools=tools,
+    prompt=react_prompt_with_format_instructions,
 )
-agent_executor = AgentExecutor(agent=agent, tools=tools, verbose = True)
-chain = agent_executor
+agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+extract_output = RunnableLambda(lambda x: x["output"])
+parse_output = RunnableLambda(lambda x: output_parser.parse(x))
+
+chain = agent_executor | extract_output | parse_output
+
 
 def main():
     # print("Hello from search-agent!")
     query_content = "Search 3 job postings for an ai engineer using langchain in the bay area on linkedin and list their details"
-    result = chain.invoke(
-                input={
-                    "input" : query_content
-                }
-    )
+    result = chain.invoke(input={"input": query_content})
     print(result)
 
 
