@@ -52,6 +52,7 @@ if __name__ == '__main__':
                 messages.append(ToolMessage(content=str(observation), tool_call_id=tool_call["id"]))
             continue # go back to the beginning of the loop
             # final_response = llm_with_tools.invoke(messages)
+            
         
         print(f"Response: {response.content}")
         break
