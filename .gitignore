@@ -214,6 +214,3 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
-# ignore the rag-gist folder but not the files inside it
-rag-gist/
-!rag-gist/*
