@@ -217,3 +217,4 @@ __marimo__/
 # ignore the rag-gist folder but not the files inside it
 rag-gist/
 !rag-gist/*
+react-langchain/
