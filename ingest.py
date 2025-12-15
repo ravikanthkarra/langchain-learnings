@@ -9,7 +9,7 @@ load_dotenv()
 
 if __name__ == "__main__":
     print("----Ingesting-----")
-    loader = TextLoader("/Users/ravikanthkarra/Documents/Py/PromptEngineering/langchain-learnings/rag-gist/mediumblog1.txt")
+    loader = TextLoader("/Users/ravikanthkarra/Documents/Py/PromptEngineering/langchain-learnings/mediumblog1.txt")
     document = loader.load()
 
     print("splitting")
@@ -18,7 +18,9 @@ if __name__ == "__main__":
     print(f".....Document split into {len(chunks)} chunks.....")
 
     embeddings = OpenAIEmbeddings(openai_api_key=os.getenv("OPENAI_API_KEY"))
-    
+
+    # PineconeVectorStore.delete(delete_all=True, index_name=os.environ["PINECONE_INDEX_NAME"], namespace="")
+
     print(".....ingesting chunks into vector store.....")
     PineconeVectorStore.from_documents(chunks, embeddings, index_name=os.environ["PINECONE_INDEX_NAME"])
     print(".....chunks ingested into vector store.....")
