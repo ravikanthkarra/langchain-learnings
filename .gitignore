@@ -214,6 +214,3 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
-rag-gist/
-!rag-gist/*
-react-langchain/
